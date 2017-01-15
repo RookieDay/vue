@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>vue</title>
+    <script src="../vue.js"></script>
+</head>
+<div id="app">
+    {{message}}
+</div>
+<div id="app-2">
+    <span v-bind:title="message">
+         Hover your mouse over me for a few seconds to see my dynamically bound title!
+         
+    </span>
+</div>
+<div id="app-4">
+    <ol>
+        <li v-for="todo in todos">
+            {{todo.text}}
+        </li>
+    </ol>
+</div>
+
+<div id="app-5">
+    <p>{{message}}</p>
+    <button v-on:click="click">Reverse</button>
+</div>
+
+<div id="app-6">
+    <p>{{message}}</p>
+    <input v-model="message">
+</div>
+
+<div id="app-7">
+    <ol>
+        <!--创建了一个todo-item的实例-->
+        <todo-item v-for="item in groceryList" v-bind:todo="item"></todo-item>
+    </ol>
+</div>
+
+<div id="example">
+    <p>{{message}}</p>
+    <button v-on:click="click">click</button>
+</div>
+
+<div id="example2">
+    <p>Original message: "{{ message }}"</p>
+    <p>Computed reversed message: "{{ reversedMessage }}"</p>
+</div>
+
+<script src="./js/process.js">
+</script>
+
+<body>
+
+</body>
+
+</html>
