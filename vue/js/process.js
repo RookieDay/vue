@@ -98,3 +98,167 @@ var vs = new Vue({
 console.log(vs.reversedMessage) // -> 'olleH'
 vs.message = 'Goodbye'
 console.log(vs.reversedMessage) // -> 'eybdooG'
+
+
+// var vv = new Vue({
+//     el: '#demo',
+//     data: {
+//         firstName: 'Foo',
+//         lastName: 'Bar',
+//         fullName: 'Foo Bar'
+//     },
+//     watch: {
+//         firstName: function(val) {
+//             this.fullName = val + ' ' + this.lastName
+//         },
+//         lastName: function(val) {
+//             this.fullName = this.firstName + ' ' + val
+//         }
+//     }
+// })
+
+// var vvv = new Vue({
+//     el: '#demo',
+//     data: {
+//         firstName: 'Foo',
+//         lastName: 'Bar'
+//     },
+//     computed: {
+//         fullName: function() {
+//             return this.firstName + this.lastName;
+//         }
+//     }
+// })
+
+var vvvv = new Vue({
+    el: '#demo',
+    data: {
+        firstName: 'Foo',
+        lastName: 'Bar'
+    },
+    computed: {
+        fullName: {
+            get: function() {
+                return this.firstName + this.lastName;
+            },
+            set: function(newValue) {
+                var names = newValue.split(' ');
+                this.firstName = names[0];
+                this.lastName = names[names.length - 1];
+            }
+        }
+    }
+})
+
+
+var watchExampleVM = new Vue({
+    el: '#watch-example',
+    data: {
+        question: '',
+        answer: 'I cannot give you an answer until you ask a question!'
+    },
+    watch: {
+        question: function(newQuestion) {
+            this.answer = 'Waiting for you to stop typing...'
+            this.getAnswer()
+        }
+    },
+    methods: {
+        getAnswer: _.debounce(
+            function() {
+                var vm = this;
+                if (this.question.indexOf('?') === -1) {
+                    vm.answer = 'Questions usually contain a question mark. ;-)'
+                    return
+                }
+                vm.answer = "Thinking...";
+                axios.get('https://yesno.wtf/api').
+                then(function(response) {
+                    vm.answer = _.capitalize(response.data.answer)
+                }).catch(function(error) {
+                    vm.answer = 'Error! Could not reach the API. ' + error
+                });
+            }, 500
+        )
+    }
+})
+var random = new Vue({
+    el: '#random',
+    data: {}
+})
+var pp = new Vue({
+    el: '#ppp',
+    data: {
+        type: "A"
+    }
+})
+
+var for1 = new Vue({
+    el: '#for-1',
+    data: {
+        items: [
+            { message: 'Foo' },
+            { message: 'Bar' }
+        ]
+    }
+})
+
+new Vue({
+    el: '#repeat-object',
+    data: {
+        object: {
+            FirstName: 'John',
+            LastName: 'Doe',
+            Age: 30
+        }
+    }
+})
+
+Vue.component('ttodo-item', {
+    template: '\
+     <li>\
+      {{ title }}\
+      <button v-on:click="$emit(\'remove\')">X</button>\
+    </li>\
+    ',
+    props: ['title']
+})
+new Vue({
+    el: '#todo-list-example',
+    data: {
+        newTodoText: '',
+        todos: [
+            'Do the dishes',
+            'Take out the trash',
+            'Mow the lawn'
+        ]
+    },
+    methods: {
+        addNewTodo: function() {
+            this.todos.push(this.newTodoText);
+            this.newTodoText = "";
+        }
+    }
+})
+
+
+new Vue({
+    el: '#num',
+    data: {
+        numbers: [1, 2, 3, 4, 5]
+    },
+    computed: {
+        evenNumbers: function() {
+            return this.numbers.filter(function(number) {
+                return number % 2 === 0
+            })
+        }
+    }
+})
+
+new Vue({
+    el: '#on1',
+    data: {
+        counter: 0
+    }
+})

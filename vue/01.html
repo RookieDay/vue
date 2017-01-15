@@ -49,7 +49,69 @@
     <p>Original message: "{{ message }}"</p>
     <p>Computed reversed message: "{{ reversedMessage }}"</p>
 </div>
+<div id="demo">{{fullName}}</div>
 
+<div id="watch-example">
+    <p>
+        Ask a yes/no question:
+        <input v-model="question">
+    </p>
+    <p>{{answer}}</p>
+</div>
+<div id="random">
+    <div v-if="Math.random() > 0.5">
+        Sorry
+    </div>
+    <div v-else>
+        Not sorry
+    </div>
+</div>
+<h1 v-if="Math.random() > 0.5">Yes</h1>
+<h1 v-else>No</h1>
+<div id="ppp">
+    <div v-if="type === 'A'">
+        A
+    </div>
+    <div v-else-if="type === 'B'">
+        B
+    </div>
+    <div v-else-if="type === 'C'">
+        C
+    </div>
+    <div v-else>
+        Not A/B/C
+    </div>
+</div>
+
+<ul id="for-1">
+    <li v-for="(item,index) in items">
+        {{ item.message }} - {{index}}
+    </li>
+</ul>
+
+<ul id="repeat-object" class="demo">
+    <li v-for="(value,key,index) in object">
+        {{value}} : {{key}} : {{index}}
+    </li>
+    <span v-for="n in 10">{{ n }}</span>
+
+</ul>
+<div id="todo-list-example">
+    <input v-model="newTodoText" v-on:keyup.enter="addNewTodo" placeholder="Add a todo" />
+    <ul>
+        <li is="ttodo-item" v-for="(todo,index) in todos" v-bind:title="todo" v-on:remove="todos.splice(index,1)"></li>
+    </ul>
+</div>
+<ul id="num">
+    <li v-for="n in evenNumbers">{{n}}</li>
+</ul>
+
+<div id="on1">
+    <button v-on:click="counter+=1">增加 1</button>
+    <p>这个按钮被点击了 {{ counter }} 次。</p>
+</div>
+<script src="https://unpkg.com/axios@0.12.0/dist/axios.min.js"></script>
+<script src="https://unpkg.com/lodash@4.13.1/lodash.min.js"></script>
 <script src="./js/process.js">
 </script>
 
