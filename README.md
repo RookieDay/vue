@@ -372,3 +372,47 @@ methods: {
 // 可以使用 v-on:keyup.f1
 Vue.config.keyCodes.f1 = 112
 ```
+
+- 表单控件绑定
+```
+绑定value
+对于单选按钮，勾选框及选择列表选项， v-model 绑定的 value 通常是静态字符串（对于勾选框是逻辑值）：
+<!-- 当选中时，`picked` 为字符串 "a" -->
+<input type="radio" v-model="picked" value="a">
+<!-- `toggle` 为 true 或 false -->
+<input type="checkbox" v-model="toggle">
+<!-- 当选中时，`selected` 为字符串 "abc" -->
+<select v-model="selected">
+  <option value="abc">ABC</option>
+</select>
+
+但是有时我们想绑定 value 到 Vue 实例的一个动态属性上，这时可以用 v-bind 实现，并且这个属性的值可以不是字符串。
+
+复选框
+    <input
+    type="checkbox"
+    v-model="toggle"
+    v-bind:true-value="a"
+    v-bind:false-value="b"
+    >
+    // 当选中时
+    vm.toggle === vm.a
+    // 当没有选中时
+    vm.toggle === vm.b
+
+单选按钮
+    <input type="radio" v-model="pick" v-bind:value="a">
+    // 当选中时
+    vm.pick === vm.a
+
+选择列表设置
+    <select v-model="selected">
+        <!-- 内联对象字面量 -->
+    <option v-bind:value="{ number: 123 }">123</option>
+    </select>
+    // 当选中时
+    typeof vm.selected // -> 'object'
+    vm.selected.number // -> 123    
+```
+
+- 组件
