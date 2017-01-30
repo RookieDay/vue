@@ -864,5 +864,53 @@ function f(){} 这两个不是一回事 声明
 			
 			函数的原型对象利用 函数.__proto__ 来获得, 或 Function.prototype 来获得. 表示 该函数 继承自
 				Function.prototype 或 函数.__proto__			
+
+// 1, 定义函数, 函数有一个属性叫 prototype
+			// 2, 函数的属性 prototype 是一个对象类型
+			//    类似 var o = { name: {} };
+			
+			// 3, 属性 prototype 是一个含有 constructor 与 __proto__ 属性的对象
+			//		这个对象就是 Person.prototype
+			
+			// 4, constructor 属性就是当前函数
+			Person === Person.prototype.constructor (把Person.prototype看成一个整体)
+			//	推论: 函数的 prototype 属性的 constructor 就是当前函数
+			
+			// 5, 所有的函数的 prototype 属性所表示的对象都继承自 Object.prototype
+			//	即: 函数.prototype.__proto__ 就是 Object.prototype
+			有一个例外---Object.						prototype.__proto__ === Object.prototype ---> false
+					     Array.prototype.__proto__ === Object.prototype  ---> true				
+```
+
+- 原型相关
+```
+原型链的习题：
+			// 1,
+			// 原型继承: 每一个对象都可以找到一条由对象构成的, 一直到 Object.prototype 的链式结构
+			// 			每一个在链上的对象所提供的方法或属性, 当前对象都可以访问. 这个就是原型继承.
+			//			
+			//			所以原型继承就是修改原型链上的对象, 以使得当前对象具有某个属性或方法
+			
+			// 2, 
+			// 优点: 共享方法与节约内存
+			// 缺点: 增加链式搜索的负担
+
+深拷贝
+var copy = function(o1,o2){
+	for(var k in o2){
+		if(typeof(o2[k]) === 'object'){
+			o1[k] = {};
+			copy(o1[k],o2[k]);
+		} else {
+			o1[k] = o2[k];
+		}
+	}
+}			
+
+var deepClone = function(obj){
+	var o = {};
+	copy(o,obj);
+	return o;
+}
 ```
 
