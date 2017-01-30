@@ -913,4 +913,14 @@ var deepClone = function(obj){
 	return o;
 }
 ```
+- 函数调用模式
+```
+function foo() {
+	console.log( this );
+}
 
+foo();							// 函数模式   --window
+var o = {fn:foo, name:'xp'};	
+o.fn();							// 方法模式   -- Object {name:'xp'} 当前调用方法的对象	
+new foo();						// 构造器模式 -- foo 指的就是foo的对象 构造器模式 this 就是 new 出来的新的对象
+```
