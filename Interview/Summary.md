@@ -923,4 +923,51 @@ foo();							// 函数模式   --window
 var o = {fn:foo, name:'xp'};	
 o.fn();							// 方法模式   -- Object {name:'xp'} 当前调用方法的对象	
 new foo();						// 构造器模式 -- foo 指的就是foo的对象 构造器模式 this 就是 new 出来的新的对象
+
+//[].push.apply(divs,ps);  这个意思是把ps里面的每一个元素 当做一个个元素
+						放到divs里面 ，把divs当做数组来调用 push方法
+						这个push是借过来用的 数据全放在divs里面了 因为数据是可读的
+						所以不可以使用push 可以使用concat
+concat 代表把数组连起来 不能是伪数组 所以变成真数组 contact 返回的是新数组
+push 返回的数组长度
+
+
+简单分析：
+	/*
+			var a = 2;
+			var o = {a: 3, foo: foo};
+			var p = {a: 4};
+			
+			o.foo();  // 3
+			
+			(p.foo = o.foo)();   // 2  赋值运算符 a=b=c=1 
+			记住 --》 取得是右边的值  赋值操作的时候 和对象无关 
+			// 编译原理 相当于吧o.foo里面存的那个函数赋给了p.foo
+			所以可以理解为foo = o.foo 取出来的是函数
+			// 词法分析以后, 留下来的不是 o.foo 而是 o.foo 里面存储的值
+			里面存的就是一个函数
+			function foo() {
+			    console.log(this.a);
+			}
+						
+			(p.foo)();			// 4
+			p.foo();			// 4
+		*/
+		
+			var o = { num: 123, fn: function() { alert( this.num ); } };
+			var num = 456;
+			var foo = o.fn;  o.fn赋值给变量foo， 如果这个变量接收的是函数的话 此时
+								是把里面存的值取出来赋值
+								o不参与赋值 通过o找到里面的fn 赋给foo
+								fn指向了一个函数  将函数赋给了foo
+								foo 就是函数本身 foo调用的时候本身没有任何对象
+								函数调用模式 this就代表全局window  
+			
+			foo();  //456 
+		</script>
+
+object.getName();
+(object.getName)();
+(object.getName = object.getName)(); //The window 非严格模式下
+这个赋值表达式的值是函数本身 所以this的值不能得到维持 结果就返回了the window
 ```
