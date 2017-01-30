@@ -970,4 +970,94 @@ object.getName();
 (object.getName)();
 (object.getName = object.getName)(); //The window 非严格模式下
 这个赋值表达式的值是函数本身 所以this的值不能得到维持 结果就返回了the window
+
+// 要求写一个方法, 让多个对象来调用
+			
+			// 1, 简单的实现
+			/*
+			function Foo1 () {
+				console.log( 'Foo1 被调用了' );
+			}
+			// 函数模式
+			Foo1();
+			// 方法
+			var o1 = { name: 'jim' };
+			var o2 = { age: 19 };
+			Foo1.apply( o1 );
+			Foo1.apply( o2 );
+			*/
+			
+			// 2, 传参
+			/*
+			function Foo2 ( a, b, c ) {
+				console.log( 'Foo2 被调用了, 参数是 ' + a + ", " + b + ", " + c );
+			}
+			// 函数式
+			Foo2(1, 2, 3);
+			// 方法模式
+			var o1 = { name: 'jim' };
+			var o2 = { age: 19 };
+			Foo2.apply( o1, [ 1, 2, 3 ] );
+			Foo2.apply( o2, [ 1, 2, 3 ] );
+			*/
+			
+			
+			// 3, 加入 this
+			/*
+			function Foo3() {
+				console.log( this );
+			}
+			// 函数模式
+			Foo3();	// window
+			// 方法模式
+			var o1 = { name: 'jim' };
+			var o2 = { age: 19 };
+			Foo3.apply( o1 ); 
+			Foo3.apply( o2 );
+			*/
+			
+			
+			// 4, 加入 this, 和 参数
+			/*
+			function Foo4( a, b, c ) {
+				console.log( this );
+				console.log( [].join.apply( arguments, [', ']) );
+				//arguments伪数组 apply调用apply 需要使用数组作为参数
+				//元素连接 形成字符串 arguments 连接起来  用逗号分隔
+ 			}
+			// 函数
+			Foo4( 1, 2, 3 ) ;  object window  -- 1,2,3
+			// 方法 
+			var o1 = { name: 'jim' };
+			var o2 = { age: 19 };
+			
+			Foo4.apply( o1, [ 1, 2, 3, 4 ]);  object{name:'jim'}  1,2,3,4
+			
+			Foo4.apply( o2, [ 1, 2, 3, 4 ]);
+```
+- 正则
+```
+//	     0123456789012345678901
+var s = "abcdefgefgefghijefglmn";
+var i = -1, arr = [];
+do {
+	i = s.indexOf( 'e', i + 1);
+	if ( i != -1 ) {
+		arr.push( i );
+	}
+} while ( i != -1 );
+
+//	     0123456789012345678901
+var s = "abcdefgefgefghijefglmn";
+var r = new RegExp( "e", "g" ); 如果把一个字符串所以字符找出来
+							第二个参数需要是'g'
+							有了g代表从刚刚找过的下一个元素开始找
+var arr = [];
+var m;
+// 在 exec 的方法中有一个规定, 如果同一个正则表达式对象 如果开启了全局模式
+// 每调用一次 exec 方法就会查找下一个字符串, 直到最后找不到 返回 null
+while ( ( m = r.exec( s ) ) != null ) {
+	arr.push( m.index );
+}
+
 ```
