@@ -1210,6 +1210,371 @@ while ( ( m = r.exec( s ) ) != null ) {
 												 有/g 替换所有匹配结果
 			
 			console.log( str ); aaa
-			var str = s.replace( /\d+/, 'a' ); 返回的是a 代表匹配连续的很多的数字
+			var str = s.replace( /\d+/, 'a' ); 返回的是a 代表匹配连续的很多的数字		
+```
+
+- 框架
+```
+关键之处：
+实现ByclassName的方法：
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			div {
+				width: 400px;
+				height: 50px;
+				margin: 10px 0;
+			}
+			.c {
+				border: 1px solid red;
+			}
+			.c1 { border: 1px solid green; }
+			.c2 { border: 1px solid blue; }
+		</style>
+		<script type="text/javascript">
+			
+			//为了解决浏览器兼容问题
+			//我们有一个处理原则就是
+			//类似Object.create() 
+			//为了实现浏览器的兼容 我们有两种处理方法
+			//1. 在原生对象里面给他加这个成员 
+			//2. 提供方法  在方法里添加判断的操作 --可以避免污染原生对象
+			var getClass = function ( className, results ) {
+				results = results || [];
+				
+				var tempArr, i;
+				
+				// 首先判断系统所提供的方法是否可以实现该功能 这里可以用我们前面写的那个support方法
+				if ( document.getElementsByClassName ) {
+					// 系统可以实现
+					results.push.apply( results, document.getElementsByClassName( className ) );
+				} else {
+					// 自定义实现
+					// 思路: 首先获得所有元素, 然后在元素中搜索符合要求的, 再加入到数组中
+					tempArr = document.getElementsByTagName( '*' );
+					// for 循环, 判断是否符合要求
+					for ( i = 0; i < tempArr.length; i++ ) {
+						//一种是处理多种样式的情况 class="c1 c3 c2" 	
+						// tempArr[ i ].className === className	// 多个样式
+
+						// tempArr[ i ].className.indexOf( className ) != -1  // 例如查找 ' c ' 类样式
+																			// 这个是肯定是可以找见c的
+																			//但是是不正确的 所以可以在c
+																			//两端加空格但是如果 
+																			//class="c c1 c2" 这样的话第一个查找还是失败的
+																			//所以在找的字符串和被找的字符串两端都加空格
+						//所以下面这是一个很牛逼的写法
+						// 需要考虑一下兼容: className 或 getAttribute
+//						if ( ( ' ' + tempArr[ i ].className + ' ' )
+//									.indexOf( ' ' + className + ' ' ) != -1 ) {
+//							results.push( tempArr[ i ] );
+//						}
+
+
+
+						// 使用传统的处理方法
+						// tempArr[ i ] 就是 一个元素, 判断该元素的 className 中是否包含 传入的参数
+						// className
+						
+						// 比如元素 <div class="c1 c2 c3"></div>
+						// "c"
+						// 注意 className 属性需要验证非空
+						var list = tempArr[ i ].className.split( ' ' );
+						for ( var j = 0; j < list.length; j++ ) {
+							if ( list[ j ] === className ) {
+								results.push( tempArr[ i ] );
+								break;
+							}
+						}
+
+					}
+				}
+				return results;
+			};
+			
+			
+		</script>
+	</head>
+	<body>
+		<div class="c1"></div>
+		<div class="c2"></div>
+		<div class="c"></div>
+		<div class="c1"></div>
+	</body>
+	<script>
+		var list = getClass( 'c2' );
+		// list[ 0 ].style.backgroundColor = 'yellow';
+		for ( var k in list ) {
+			list[ k ].style.backgroundColor = 'pink';
+		}
+	</script>
+</html>
+ 
+
+以下代码会报错 因为IE8不支持伪数组
+results.push.apply( results, document.getElementsByTagName( tag ) );
+
+以下是我们JQ里面的源代码：
+// Optimize for push.apply( _, NodeList )
+try {
+	push.apply(
+	//这也就是在做能力检测
+	//childNodes 是一个dom对象 这里一个伪数组， call操作 这里伪数组转为了真数组
+		(arr = slice.call( preferredDoc.childNodes )),
+		preferredDoc.childNodes
+	);
+	// Support: Android<4.0
+	// Detect silently failing push.apply
+	arr[ preferredDoc.childNodes.length ].nodeType;
+} catch ( e ) {
+
+	push = { apply: arr.length ?
+
+		// Leverage slice if possible
+		function( target, els ) {
+			push_native.apply( target, slice.call(els) );
+		} :
+
+		// Support: IE<9
+		// Otherwise append directly
+		function( target, els ) {
+			var j = target.length,
+				i = 0;
+			// Can't trust NodeList.length
+			while ( (target[j++] = els[i++]) ) {} 这是一个空循环 里面是一个赋值操作
+			target.length = j - 1;
+		}
+	};
+}
+
+
+
+解决IE的push 兼容性：
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style>
+			div, p {
+				width: 100px; height:30px; border:1px solid red; margin: 10px 0;
+			}
+		</style>
+		<script>
+			var myPush = function( target, els ) {
+				var j = target.length,
+					i = 0;
+				// Can't trust NodeList.length
+				while ( (target[j++] = els[i++]) ) {}
+				target.length = j - 1;
+			};
+			
+		</script>
+	</head>
+	<body>
+		<div></div>
+		<div></div>
+		<p></p>
+		<p></p>
+	</body>
+	<script>
 		
+		
+		
+
+		// 如果利用 get 方法获得多个元素的话, 就会得到多个数组
+		// 为了简化开发, 可以考虑将其合并到一个数组中
+		// 调用多次 get 方法, 如果想要多个数组就可以使用多个数组
+		// 想要一个数组, 就得到一个数组
+		//缺点--- 这里try catch的性能会有损失 出一次错误报一次错误
+		//JQ是把这个try放到外面 以后再调用getTag的时候 直接调用push方法即可
+		以下是优化Push方法的思路:
+		// 伪代码  把try放在外面， 以后使用getTag方法的时候 直接使用push方法就可以了
+		这里的push就是一个方法
+		var push = [].push;  要么用的是原来的可用的方法 要么用的是自己提供的方法这里的错误只会出现一次
+		后面用的时候直接用我们自己定义的push方法就可以了，不需要做其余的判断了
+		try {
+			push 可用
+		} catch ( e ) {
+			push = {...};
+		}
+
+		var getTag = function ( tag, results ) {
+			results = results || [];
+			push.apply( results, document.getElementsByTagName( tag ) );
+			return results;
+		};
+		这样不会每次都会出现错误了， 而是在框架加载的时候出现一次错误
+
+
+
+		//这里的try写在里面 IE只要调用一次这个方法就会出一次错误 出一次错误捕获一次
+		//这样写的话 try catch的性能会有所损耗 
+		var getTag = function ( tag, results ) {
+			results = results || [];
+			try {
+				results.push.apply( results, document.getElementsByTagName( tag ) );
+			} catch ( e ) {
+				myPush( results, document.getElementsByTagName( tag ) );
+			}
+			
+			return results;
+		};
+		
+		var each = function ( arr, fn ) {
+			for ( var i = 0; i < arr.length; i++ ) {
+				if ( fn.call( arr[ i ], i, arr[ i ] ) === false ) {
+					break;
+				}
+			}
+		};
+		
+		/*
+		var list1 = getTag( 'div' );
+		var list2 = getTag( 'p' );
+		
+		each( list1, function () {
+			this.style.backgroundColor = 'orange';
+		});
+		each( list2, function () {
+			this.style.backgroundColor = 'orange';
+		});		
+		*/
+		
+		
+		each( getTag( 'p', getTag( 'div' ) ), function () {
+			this.style.backgroundColor = 'red';
+		});
+	</script>
+</html>
+```
+- 关于IE的push方法
+```
+
+		// 如果利用 get 方法获得多个元素的话, 就会得到多个数组
+		// 为了简化开发, 可以考虑将其合并到一个数组中
+		// 调用多次 get 方法, 如果想要多个数组就可以使用多个数组
+		// 想要一个数组, 就得到一个数组
+		//缺点--- 这里try catch的性能会有损失 出一次错误报一次错误
+		//JQ是把这个try放到外面 以后再调用getTag的时候 直接调用push方法即可
+		以下是优化Push方法的思路:
+		// 伪代码  把try放在外面， 以后使用getTag方法的时候 直接使用push方法就可以了
+		这里的push就是一个方法
+		var push = [].push;  要么用的是原来的可用的方法 要么用的是自己提供的方法这里的错误只会出现一次
+		后面用的时候直接用我们自己定义的push方法就可以了，不需要做其余的判断了
+		try {
+			push 可用
+		} catch ( e ) {
+			push = {...};
+		}
+
+		var getTag = function ( tag, results ) {
+			results = results || [];
+			push.apply( results, document.getElementsByTagName( tag ) );
+			return results;
+		};
+		这样不会每次都会出现错误了， 而是在框架加载的时候出现一次错误
+
+
+
+		//这里的try写在里面 IE只要调用一次这个方法就会出一次错误 出一次错误捕获一次
+		//这样写的话 try catch的性能会有所损耗 
+		var getTag = function ( tag, results ) {
+			results = results || [];
+			try {
+				results.push.apply( results, document.getElementsByTagName( tag ) );
+			} catch ( e ) {
+				myPush( results, document.getElementsByTagName( tag ) );
+			}
+			
+			return results;
+		};
+		
+		var each = function ( arr, fn ) {
+			for ( var i = 0; i < arr.length; i++ ) {
+				if ( fn.call( arr[ i ], i, arr[ i ] ) === false ) {
+					break;
+				}
+			}
+		};
+
+
+		support 
+		能力检测如下：
+var support = {};
+			
+			// support.getElementsByClassName = !!document.getElementsByClassName;
+			// 在 jq 中不仅判断他是否存在, 还要判断其能力是否符合要求
+			
+			support.getElementsByClassName = (function () {
+				
+				var isExist = !!document.getElementsByClassName;
+				
+				if ( isExist && typeof document.getElementsByClassName == 'function' ) {
+					// 自己创建一些元素, 并且加上 class 属性, 看是否可以获得到加上的所有元素
+					var div = document.createElement( 'div' ),
+						divWithClass = document.createElement( 'div' );
+					
+					divWithClass.className = 'c';
+					div.appendChild( divWithClass );
+					return div.getElementsByClassName( 'c' )[ 0 ] === divWithClass;
+				
+				}
+				
+				return false;
+			})();
+			
+			
+			if ( support.getElementsByClassName ) {
+				// return node.getElementsByClassName( className );
+				alert( '支持 class' );
+			} else {
+				// 自己实现( className );
+				alert( '不支持 class' );
+			}
+
+
+
+push函数的疑问： IE不支持push的功能 所以在这里我们自己实现一下
+<script>
+			
+			// push
+			// push.apply 的形式进行调用
+			// 功能 push.apply( 伪数组1, 伪数组2 );
+			var push = {
+				//			   [ 1, 2 ]  [ 3, 4, 5]
+				apply: function ( arr1, arr2 ) {
+					// 将 arr2 里面的每一个元素都一个个加到 arr1 中
+					
+					// 如果 arr1 是真数组
+					/*
+					for ( var i = 0; i < arr2.length; i++ ) {
+						arr1.push( arr2[ i ] );
+						arr1[ arr1.length++ ] = arr2[ i ];
+					}
+					*/
+					//伪数组的length是不变的
+					var l = arr1.length;
+					for ( var i = 0; i < arr2.length; i++ ) {
+						arr1[ l + i ] = arr2[ i ];
+					}
+					// 如果 arr1 是真数组, 没有问题, 如果是伪数组, 那么 length
+					// 不会自动增加, 所以, 需要手动的赋值
+					arr1.length = l + i;
+					
+					
+					// jq 中使用的是 while
+					var l = arr1.length;
+					var i = 0;
+					while( arr1[ l++ ] = arr2[ i++ ] ) ;   //当访问不到的时候 就会跳出
+					arr1.length = l - 1;
+				}
+			};
+			
+			
+		</script>
+
 ```
