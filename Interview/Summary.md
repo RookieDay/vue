@@ -1069,24 +1069,24 @@ while ( ( m = r.exec( s ) ) != null ) {
 			// ()	分组 一次匹配当中 一部分内容
 			// +	代表紧挨的字符或字符组出现 1 次到多次 ( 默认匹配最多 )
 			// ?	1> 0次或1次, 2> 放在次数限定元字符后表示尽可能少匹配
-			// .+@.+  	 最左边的.+ 代表匹配最多 jim@itcast.cn, tom@126.com, jack
+			// .+@.+  	 最左边的.+ 代表匹配最多 jim@ana.cn, tom@126.com, jack
 			//			 最右边的.+代表匹配最少  163.com
 			// + 默认匹配最多 123@12@34@ 如果是.+@ 这个默认匹配的是最后一个@
-			var str = "jim@itcast.cn, tom@126.com, jack@163.com";
+			var str = "jim@ana.cn, tom@126.com, jack@163.com";
 			
 			//var r = /.+@.+/; 之后m[0]会打出全部的字符  不知道 @前后是哪个
 			m: Array[1]
-				0:"jim@itcast.cn, tom@126.com, jack@163.com"
+				0:"jim@ana.cn, tom@126.com, jack@163.com"
 				index:0
-				input:"jim@itcast.cn, tom@126.com, jack@163.com"
+				input:"jim@ana.cn, tom@126.com, jack@163.com"
 				length:1
 
 			//var r = /(.+)@(.+)/; 分组
-			0:"jim@itcast.cn, tom@126.com, jack@163.com"
-			1:"jim@itcast.cn, tom@126.com, jack"  把@前面的全部找出来了
+			0:"jim@ana.cn, tom@126.com, jack@163.com"
+			1:"jim@ana.cn, tom@126.com, jack"  把@前面的全部找出来了
 			2:"163.com"							  只把最少的@后面的找出来了				
 			index:0
-			input:"jim@itcast.cn, tom@126.com, jack@163.com"
+			input:"jim@ana.cn, tom@126.com, jack@163.com"
 			length:3
 
 						// 元字符 []
@@ -1576,5 +1576,460 @@ push函数的疑问： IE不支持push的功能 所以在这里我们自己实�
 			
 			
 		</script>
+
+push的完善：
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style>
+			div, p {
+				width: 400px; height: 50px; margin: 10px 0; padding: 0; border: 1px dashed red;
+			} 
+		</style>
+		<script type="text/javascript">
+			
+			var push = [].push;
+			
+			try {
+		 		var c = document.createElement( 'div' );
+		 		c.appendChild( document.createElement( 'div' ) );
+		 		var list = c.getElementsByTagName( '*' );
+		 		push.apply([], list);
+				
+			} catch(e) {
+				push = {
+					apply: function(target, eles) {
+						var j = target.length,
+							i = 0;
+						while ( target[j++] = eles[i++] );
+						target.length = j-1;
+					}
+				};
+			} finally {
+				c = list = null;
+			}
+			
+		</script>
+	</head>
+	<body>
+		<div>div</div>
+		<div>div</div>
+		<div>div</div>
+		<p>p</p>
+		<p>p</p>
+	</body>
+	<script>
+		var tag = function ( tag, results ) {
+			results = results || [];
+			push.apply( results, document.getElementsByTagName( tag ) );
+			return results;
+		}
+		
+		var list = tag( 'div' );
+		list = tag( 'p', list );
+		
+		for ( var i= 0; i < list.length; i++) {
+			list[ i ].style.backgroundColor = 'yellow';
+		}
+	</script>
+</html>
+
+DOM 设置属性
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style>
+			.c {
+				border: 1px solid red;
+				width: 400px;
+				height: 150px;
+			}
+		</style>
+		<script type="text/javascript">
+			
+			// 2, 在页面中创建 3 个 div, 要求 设置其边框与颜色以及大小
+			// 1> 直接设置 style 属性
+			// 2> 使用 类样式
+			// -> setAttribute
+			// -> .语法
+			
+//			onload = function () {
+//				var i, node;
+//				for ( i = 0; i < 3; i++ ) {
+//					node = document.createElement( 'div' );
+//					// node.setAttribute( 'class', 'c' );
+//					node.className = 'c';
+//					document.body.appendChild( node );
+//				}
+//			};
+			
+			
+			// 1, 方法比较多, 练习的过程的中每一个做法都要熟练
+			// 2, 由于每次循环都使用 document.body.appenChild 因此
+			//		会导致每次 for 都要刷新页面结构. 应该采用一个临时的数据
+			//		存储这些 dom 对象, 在 全部创建完成以后, 再一并加入
+					
+					
+			// 只有创建一个 节点标签, 才可以不影响 整个页面布局, 同时允许存储其他标签
+//			onload = function () {
+//				var i, node, container = document.createElement( 'div' );
+//				for ( i = 0; i < 3; i++ ) {
+//					node = document.createElement( 'div' );
+//					// node.setAttribute( 'class', 'c' );
+//					node.className = 'c';
+//					container.appendChild( node );
+//				}
+//				document.body.appendChild( container );
+//			};
+
+			// 用于缓存文档片段的 DOM 对象 DocumentFragment
+			onload = function () {
+				var i, node, 
+					container = document.createDocumentFragment();
+					
+				for ( i = 0; i < 3; i++ ) {
+					node = document.createElement( 'div' );
+					// node.setAttribute( 'class', 'c' );
+					node.className = 'c';
+					container.appendChild( node );
+				}
+				document.body.appendChild( container );
+			};
+		</script>
+	</head>
+	<body>
+	</body>
+</html>
+
+或者使用下面的innerHTML：
+	<script type="text/javascript">
+		onload = function () {
+			var i,s = '';
+			for (var i = 0; i < 10; i++) {
+				s += '<div>' + i + '</div>';
+			}
+			document.body.innerHTML = s;
+		}
+	</script>
+
+
+	
+DOM疑问：
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<script>
+			
+			// jq 
+			// $( '<div></div>' ).appendTo( 'body' );
+			
+			// createElement 可以创建 HTML 的 DOM 对象
+			
+			// <DOM 对象>.appendTo( ... )
+			
+			// 原则: 不要直接的修改原生的内置对象的成员
+			
+			// 也就是说 DOM 对象不应该提供 appendTo 方法
+			
+			// 谁添加该方法?
+			// -> DOM对象		错误
+			// -> 原型对象		jq 对象的原型对象; 包装对象( 自定义对象 )的原型对象
+			// -> jq 对象
+			
+			// $( '...' ).appendTo( $( 'body' ) )
+			// 框架的结构
+//			var ana = function ( selector ) {
+//				return new F( selector );
+//			};
+//			var F = function ( selector ) {
+//				
+//			};
+//			F.prototype = {
+//				appendTo: function( selector ) {}
+//			};
+			
+			// 缺点???
+			// 首先在沙箱中 F 对外不可见, 无法实现扩展
+			// 同时在描述中容易造成多个变量暴漏与全局中
+			
+			// 解决方案, 直接将 F 绑定到 ana 的上面 有两种方法
+			// -> 1. ana.init = F  这个是放在了构造函数上 静态方法 作为工具来使用
+			// -> 2. ana.prototype.init = F 放在了原型对象上
+			// 法1 --如果想要扩展
+			// -> ana.init.prototype.xx = xxx;
+			
+			// 由于在方法中提供的方法一般是静态方法, 作为工具使用
+			// 但是 jq 中并不是如此操作
+			// 同时根据代码的组织规范, 初始化方法放在原型中更加合理( 与实例相关 )
+			
+			//类似如下：
+			var ana = function ( selector ) {
+				return new ana.prototype.init( selector );
+			};
+			ana.prototype = {
+				appendTo: function( selector ) {}
+			};
+			ana.prototype.init = function(selector) {}
+			ana.prototype.init.prototype = ana.prototype;
+
+
+			//继续优化
+			var ana = function ( selector ) {
+				return new ana.prototype.init( selector );
+			};
+			ana.prototype = {
+				appendTo: function( selector ) {},
+				init: function ( selector ) {}
+			};
+			
+			ana.prototype.init.prototype = ana.prototype;
+			
+		</script>
+	</head>
+	<body>
+	</body>
+</html>
+
+
+双等号：
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<script type="text/javascript">
+			
+			var ana = function ( selector ) {
+				return new ana.prototype.init( selector );
+			};
+			ana.prototype = {
+				appendTo: function( selector ) {},
+				init: function ( selector ) {}
+			};
+			
+			ana.prototype.init.prototype = ana.prototype;
+			
+			//构造函数和原型都有这个方法
+			ana.extend = ana.prototype.extend = function ( obj ) {}; 
+			
+			// 前面给大家描述过, 代码在逻辑上组织时候是需要按照特定功能分组的
+			 
+			// 工具型方法 并非是每个实例必须的方法  在原有方法的基础上功能增强
+			// 例如要实现 nextSibling
+			// jq 中就是 next()
+			//	.next()					获得下一个元素
+			//  .next( selector )		获得下一个元素,如果该元素是符合说选择器的取出来, 否则没有获得到元素
+			
+			// 如果要实现该方法
+			// 实际上就是内部循环调用 获得下一个元素的方法
+			// 就是一个 dom 数组, 获得每一个元素的下一个元素, 组成一个新数组
+			// [ div1, div2 ]
+			// [ div1.nextSibling, div2.nextSibling ]
+			
+			// 由于浏览器的不同, 该方法可能会获得空的文本节点, 这个不应该在元素上考虑
+			// 需要一个通用的工具方法, 来获得某一个元素的下一个元素
+			//缺点： 外界无法使用 因为已经在沙箱里了
+			// 外界要使用它== 框架的扩展用 
+//			var next = function ( dom ) {
+//				var newDom = dom;
+//				while( newDom = newDom.nextSibling ) {
+//					if ( newDom.nodeType == 1 ) {
+//						return newDom;
+//					}
+//				}
+//			};
+//			[ next( divs ), next( div2 ) ];
+//			
+
+			// 实际上该方法如果放到沙箱中, 外部是无法访问, 也就是说必须只能在沙箱内部使用
+			// 而该方法如果在框架扩展的时候是需要使用该功能的, 那么就出现无法共享的问题
+			// 因此为了共享应该将其作为静态方法存在
+			// 那么在代码中如何添加该方法呢?
+			
+			// -> ana.next = function () ...
+			// -> ana.extend({ next: function() {} });
+			
+			// 实例方法
+			// -> ana.prototype.next = function () {}
+			// -> ana.prototype.extend({ next: function() {} });
+			
+			
+			
+			// 将来在添加方法的时候
+			
+			// 1>
+			ana.prototype.css = function () {};
+			ana.prototype.hasClass = function () {};
+			ana.prototype.addClass = function () {};
+			ana.prototype.removeClass = function () {};
+			ana.prototype.toggleClass = function () {};
+			
+			
+			// 2>
+			ana.prototype.extend({
+				css: function () {
+				},
+				hasClass: function () {
+				},
+				addClass: function () {
+				},
+				removeClass: function () {
+				},
+				toggleClass: function () {
+				}
+			});
+			
+			
+			// 工具型方法
+			
+			
+			
+		</script>
+	</head>
+	<body>
+	</body>
+</html>
+
+双等号：
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<script>
+			
+			// ana
+			// ana.prototype
+			
+			// 是要给这两个对象添加 extend 方法
+			// 怎么添加
+			
+//			ana.extend = function ( obj ) {
+//				for ( var k in obj ) {
+//					this[ k ] = obj[ k ];  
+//				}
+//			};
+//			
+//			ana.prototype.extend = function ( obj ) {
+//				for ( var k in obj ) {
+//					this[ k ] = obj[ k ];  
+//				}
+//			};
+			
+			
+			// console.log( {} == {} );   false
+			// alert( function () {} == function () {} );  false
+			
+			
+			// 优化一下: 减少一个函数, 共享
+//			var fn = function ( obj ) {
+//				for ( var k in obj ) {
+//					this[ k ] = obj[ k ];  
+//				}
+//			};
+//			ana.extend = fn;
+//			ana.prototype.extend = fn;
+			
+			// 浪费一个变量名
+			
+			/*  从右往左 先把123 赋给b  再把整个表达式值b=123 当成整体赋给a
+			var a, b;
+			a = b = 123;
+			*/
+			
+			// 现将 123 赋值给 b, 然后整个赋值表达式的值就是 123, 接着讲 123 赋值给 a
+			ana.extend = ana.prototype.extend = function ( obj ) {
+				for ( var k in obj ) {
+					this[ k ] = obj[ k ];  
+				}
+			};
+		</script>
+	</head>
+	<body>
+	</body>
+</html>
+
+
+
+循环克隆：
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<script>
+			// 将问题简化
+			I( '<div></div><div></div>' ).appendTo( 'div' );
+			
+			// 将一个 div 数组( 2 个元素 ) 添加到 页面中的 div 中( 2 个 )
+			// [ d1, d2 ]						[ div1, div2 ]
+			// 将 d1 加到 div1 和 div2 中
+			// 将 d2 加到 div1 和 div2 中
+			
+			// 单个元素要克隆几个由需要添加的元素个数决定, 刚刚是需要添加的个数 - 1
+			
+			// 再简化
+			// 将 dv 加到 [ div1, div2, div3 ] 中
+			/*
+			div1.appendChild( dv.cloneNode( true ) );
+			div2.appendChild( dv.cloneNode( true ) );
+			div3.appendChild( dv );
+			*/
+			
+			// 最后一个不克隆, 前面的所有都要克隆
+			/*
+			for ( var i = 0; i < list.length; i++ ) {
+				list[ i ].appendChild( i === list.length - 1 ?
+										dv : 
+										dv.cloneNode( true ) );
+			}
+			*/
+			
+			
+			
+			// 接下来讨论两个循环
+			// ds = [ d1, d2 ]						list = [ div1, div2, dv3 ]
+			div1.appendChild( d1.cloneNode( true ) );
+			div1.appendChild( d2.cloneNode( true ) );
+			
+			div2.appendChild( d1.cloneNode( true )  );
+			div2.appendChild( d2.cloneNode( true )  );
+			
+			div3.appendChild( d1 );
+			div3.appendChild( d2 );
+			
+			// 添加一层循环
+			for ( var i = 0; i < ds.length; i++ ) {
+				div1.appendChild( ds[ i ].cloneNode( true ) );
+			}
+			for ( var i = 0; i < ds.length; i++ ) {
+				div2.appendChild( ds[ i ].cloneNode( true ) );
+			}
+			for ( var i = 0; i < ds.length; i++ ) {
+				div3.appendChild( ds[ i ] );
+			}
+			// 合并
+			for ( var j = 0; j < list.length; j++ ) {
+				for ( var i = 0; i < ds.length; i++ ) {
+					list[ j ].appendChild( j === list.length - 1 ? 
+												ds[ i ] : 
+												ds[ i ].cloneNode( true ) );
+				}
+			}
+			
+		</script>
+	</head>
+	<body>
+	</body>
+</html>
+
+
+
 
 ```
