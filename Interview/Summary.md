@@ -2032,4 +2032,494 @@ DOM疑问：
 
 
 
+简单封装一下：
+// by ana
+// xxxx-xx-xx
+//这里使用window -- 减少变量作用域的搜索 提高性能, 
+//这里使用undefined  --- 下面没有传参 所以我们这个值就是undefined 这是为了解决早期浏览器有的
+//没有实现undefined 功能， 有的没有实现undefined功能， 如果没有实现undefined功能，在浏览器使用的时候，他会把undefined当做变量来用， 一旦把他当做变量来使用，就表明改变量未定义，报错，所以参数里面给一个undefined,但是不给他传参，所以表明这个变量就是undefined,他的值也就是undefined， 这里巧妙的用到了
+值和名字是一样的情况，那么在代码里面使用undefined的话 就不会出现这种报错的情况
+(function ( window, undefined ) {
+	
+	
+// 构造函数
+var ana = function ( selector ) {
+	return new ana.fn.init( selector );
+};
+// 核心原型
+ana.fn = ana.prototype = {
+	constructor: ana,
+	selector: null,
+	init: function ( selector ) {
+		// 字符串: 选择器, html
+		if ( typeof selector == 'string' ) {
+			if ( selector.charAt( 0 ) === '<' ) {
+				this.elements = parseHTML( selector );
+			} else {
+				this.elements = select( selector );
+			}
+		}
+		this.selector = selector;
+	}
+};
+ana.fn.init.prototype = ana.prototype;
+
+// 可扩展
+ana.extend = ana.fn.extend = function ( obj ) {
+	// 将 obj 的成员加到 this 上
+	var k;
+	for ( k in obj ) {
+		this[ k ] = obj[ k ];
+	}
+};
+
+var select = function ( selector ) {
+	var first = selector.charAt( 0 ), arr = [];
+	if ( first === '#' ) {
+		arr.push.call( arr, document.getElementById( selector.slice( 1 ) ) )
+	} else if ( first === '.' ) {
+		arr.push.apply( arr, document.getElementsByClassName( selector.slice( 1 ) ) )
+	} else {
+		arr.push.apply( arr, document.getElementsByTagName( selector ) );
+	}
+	return arr;
+};
+
+var parseHTML = function ( html ) {
+	var div = document.createElement( 'div' ),
+		arr = [], i;
+	div.innerHTML = html;
+	for ( i = 0; i < div.childNodes.length; i++ ) {
+		arr.push( div.childNodes[ i ] );
+	}
+	return arr;
+};
+
+// 基本的工具方法
+ana.extend({
+	each: function ( arr, fn ) {
+		var i, l = arr.length, 
+			isArray = ana.isLikeArray( arr );
+		if ( isArray ) {
+			// 数组
+			for ( i = 0; i < l; i++ ) {
+				if ( fn.call( arr[ i ], i, arr[ i ] ) === false ) {
+					break;
+				}
+			}
+		} else {
+			// 对象
+			for ( i in arr ) {
+				if ( fn.call( arr[ i ], i, arr[ i ] ) === false ) {
+					break;
+				}
+			}
+		}
+		return arr;
+	}
+});
+
+// 判断类型的方法
+ana.extend({
+	isFunction: function ( obj ) {
+		return typeof obj === 'function';
+	},
+	isString: function ( obj ) {
+		return typeof obj === 'string';
+	},
+	isLikeArray: function ( obj ) {
+		return obj && obj.length && obj.length >= 0;
+	},
+	isana: function ( obj ) {
+		return !!obj.selector;
+	},
+	isDOM: function ( obj ) {
+		return !!obj.nodeType;
+	}
+});
+
+
+// 基本的 DOM 操作
+ana.fn.extend({
+	appendTo: function ( selector ) {
+		// var objs = ana( selector ).elements,
+		// 	i, j,
+		// 	len1 = objs.length,
+		// 	len2 = this.elements.length;
+		// // 将 this.elements 加到 objs 中
+		// for ( i = 0; i < len1; i++ ) {
+		// 	for ( j = 0; j < len2; j++ ) {
+		// 		objs[ i ].appendChild( i === len1 - 1 ? 
+		// 								this.elements[ j ] :
+		// 								this.elements[ j ].cloneNode( true ) );
+		// 	}
+		// }
+		var objs = ana(selector).elements, i,j,
+				len1 = objs.length,
+				len2 = this.elements.length;
+		for( i = 0; i < len1; i++) {
+			for( j = 0; j < len2; j++) {
+				objs[i].appendChild(i === len1 - 1 ? 
+								this.elements[j] 
+								:this.elements[j].cloneNode(true));
+			}
+		}
+	}
+});
+
+
+
+
+// 对外公开
+window.I = window.ana = ana;
+//这里使用window -- 减少变量作用域的搜索 提高性能
+})( window );
+
+
+
+关于appendTo中elements的思考：
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<script type="text/javascript">
+			
+			// obj.elements
+			// 特点就是数据都在 elements 中
+			// 方法与它并列, 也就是说方法与数据分离了
+			
+			// 这样的组织方式管理非常方便
+			// 但是在给予它的开发变得每次都要使用 elements, 很繁琐
+			
+			// jq 中将数据直接存储到 this 中, 也就是说将 jq 对象看成一个伪数组
+			// 里面的每一个元素都是 dom 对象
+			// 同时提供了很多的方法
+			
+			// jq -> DOM
+			// $(...).get(0)
+			// $(...)[ 0 ]
+		</script>
+		<script src="../../js/jquery-1.12.1.js"></script>
+		<script>
+			
+			$(function () {
+				var temp = $( 'div' );
+				var temp = $();
+			});
+		</script>
+	</head>
+	<body>
+		<div class="c1"></div>
+		<div class="c2"></div>
+		<div class="c3"></div>
+	</body>
+</html>
+
+验证修改原型继承属性
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<script>
+			var Person = function () {
+				
+			};
+			Person.prototype.age = 10;
+			
+			var p = new Person();
+			
+			console.log( p.age );
+//执行下面这句话之前  这个时候age是在他的原型里面的 
+	p: Person
+		__proto__:Object
+		age:10
+		constructor:()
+		__proto__:Object
+
+//执行下面这句话 	赋值以后 p里面有了age	 所以我们原型当中的age是不能修改的
+			// p.age = 123; 
+	p: Person
+		age:123
+		__proto__:Object
+		age:10
+		constructor:()
+		__proto__:Object
+
+			
+			p.age += 123;
+			// p.age = p.age + 123 注释了上面的p.age=123 执行这句话
+								//代表的是用原型里面的数据加上123 在给P一个age 
+			
+			console.log( p.age );
+			
+			
+			
+		</script>
+	</head>
+	<body>
+	</body>
+</html>
+
+
+什么是事件：
+	事件不是一个名词 其实是一个过程 是人出发的一个行为 节点标签注册了一个
+	事件处理程序 节点会调用事件处理程序， 如果他注册事件处理程序的这个名字和我们的
+	这个行为刚好相同的话，那么我的dom对象就会调用我们的事件处理程序 这个过程称之为事件
+	事件的内部在操作的时候， 比如现在又一个click事件，在我们点一下的时候 会执行click方法
+	这就是在响应事件 ，这是内部去做的， 那么对于我们的onClick方法，当我们内部响应的时候，如果我们注册的事件处理程序，
+	我们的系统就会 调用这样的方法， 执行我们的Onclick方法。如果里面什么都没有返回
+	就把onclick执行了 同时把他的默认行为执行了，如果返回的是false, 代表的是取消他的默认
+	行为， 那么就把onclik执行了， 默认行为不执行
+click() {
+	if onclick != null {
+		if (onclick() !== false) {
+			默认行为
+		}
+	}
+}
+
+以前用的添加事件
+
+// addEventLisener   这种添加事件可以绑定多个事件 连续增加事件
+// 	dom.addEventLisener( 事件名, fn ) 事件名--  这个地方 fn 函数里面的this代表dom对象
+//	
+IE里面的添加事件
+// attachEvent
+//  dom.attachEvent( 事件名, fn ) 这个地方fn函数里面的this代码window 
+
+这种方式的事件的 新事件会把原来事件覆盖
+div.onclick = function() {
+	
+}
+
+
+
+// 什么是事件对象? 有什么用?
+事件就是用户做了一件事情，然后他就可以给我一个响应
+事件对象就是 用户在做这件事情的，有很多附带的信息 比如说
+用户做的是什么事情  用户在哪个地方的事情 
+// 如何访问事件对象????
+// 1> IE
+//		window.event
+// 2> 火狐
+//		事件处理函数的参数
+
+
+事件移出：
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<script src="ana.js"></script>
+		<script>
+			// 添加事件 addEventListener
+			// 语法: addEventListener( 事件的类型, 事件处理函数, 冒泡还是捕获  )
+			// 移除事件 removeEventListener
+			// 语法: removeEventListener( 事件类型, 事件处理函数 )
+			// 移除的只能是加入的函数
+			onload = function () {
+				
+				
+				// var btn = document.getElementById( 'btn' );
+				
+				var fn = function () {
+					alert( '123' );
+				}
+				
+				/*
+				btn.addEventListener( 'click', fn );  // 这个函数无法移除
+				
+				btn.removeEventListener( 'click', fn );
+				*/
+				
+				I( '#btn' ).on( 'click', fn ); 
+				
+				I( '#btn' ).off( 'click', fn );
+			};
+		</script>
+	</head>
+	<body>
+		<input type="button" id="btn" value=" click " />
+	</body>
+</html>
+
+
+
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style>
+			div {
+				width: 100px; height: 20px; border: 1px solid red; margin: 10px 0;
+			}
+			.c1 {
+				background-color: red;	/* #ff0000 */
+			}
+			.c2 {
+				background-color: green; /* #00ff00 */
+			}
+			.c3 {
+				background-color: blue; /* #0000ff */
+			}
+		</style>
+		<script src="ana.js"></script>
+		<script>
+			ana.fn.extend({
+				css: function ( cssName, cssValue ) {
+					// 假设只有一个参数 cssName
+					// this 是多个元素是一个 DOM 的数组, 但是获取数据的时候
+					// 获得的是第 0 个元素的样式
+					// return this[ 0 ].style[ cssName ];
+					
+					// 在 js 中, 利用 js 获得样式, 默认只能获得行内样式, 类样式与外部样式无法获得
+					// 考虑使用 计算样式来获得第一次的结果
+					// window.getComputedStyle
+					// 如果是 低版本的 IE 浏览器, 需要使用 currentStyle
+					
+					var style = window.getComputedStyle( this[ 0 ] );
+					
+					return style[ cssName ];
+				}
+ 			});
+			
+			I(function () {
+				var res = I( 'div' ).css( 'background-color' );
+				console.log(typeof res );
+			});
+		</script>
+	</head>
+	<body>
+		<div class="c1"></div>
+		<div class="c2"></div>
+		<div class="c3"></div>
+	</body>
+</html>
+
+
+
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style>
+			div {
+				width: 100px; height: 20px; border: 1px solid red; margin: 10px 0;
+			}
+			.c1 {
+				background-color: red;	/* #ff0000 */
+			}
+			.c2 {
+				background-color: green; /* #00ff00 */
+			}
+			.c3 {
+				background-color: blue; /* #0000ff */
+			}
+		</style>
+		<script src="../js/jquery-1.12.1.js"></script>
+		<script type="text/javascript">
+			
+			// .css( '名字' )
+			// .css( '名字', '值' )
+			// .css( {  } );
+			
+			// addClass()
+			// removeClass()
+			// hasClass()
+			// toggleClass()
+			
+			$(function () {
+				
+				// var res = $( 'div' ).css( 'backgroundColor' );
+				
+				// console.log( res );
+				
+				alert( $('div').hasClass('c3') );
+			});
+			
+		</script>
+	</head>
+	<body>
+		<div class="c1"></div>
+		<div class="c2"></div>
+		<div class="c3"></div>
+	</body>
+</html>
+
+
+
+去空格
+str.replace(/^\s+/g,'').replace(/\s+$/g,'');
+在很多其他编程语言当中有trim方法，但是很多语言支持函数重载
+有一个规则 如果trim函数不带参数 则去掉左右空格
+如果带有参数 表示取消左右指定的字符
+'abc132'.trim('a') ---> bc132
+/^a+|a+$/g
+
+'abc132a'.trim('a','b') ---> c132
+/^[ab]+ | (a|b)+$/g
+
+
+
+兼容IE的currentStyle() 
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			div { width: 100px; height: 40px; border:1px solid red;}
+		</style>
+		<script>
+			var support = {};
+			// 浏览器检查
+			
+			onload = function () {
+				var dv = document.getElementsByTagName('div')[ 0 ];
+				
+				var style1 = dv.style;
+				var style2 = window.getComputedStyle( dv );
+				var style3 = dv.currentStyle;
+				
+				var _ = 0;
+			};
+			
+		</script>
+	</head>
+	<body>
+		<div></div>
+	</body>
+</html>
+
+
+移动前端：
+标准viewport 操作： meta:vp  tab键
+1. 流式布局
+	流式布局  就是百分比布局，通过盒子的宽度设置成百分比来根据屏幕的宽度来进行伸缩，不受固定像素的限制，内容向两侧填充。
+	这样的布局方式  就是移动web开发使用的常用布局方式
+2. viewport
+	有三层 一个是我们的浏览器 一个是我们的viewport 一个使我们的页面
+	viewport是一个虚拟的窗口 他可能比浏览器窗口大  可能比浏览器窗口小
+	是用来承载我们网页的 能设置缩放比例
+
+总结： 用meta标签 把view-port宽度设置为device-width 同时initial-scale = 1
+,user-scalable = 1 就构建了一个标准的移动web页面
+
+
+非标准viewport
+
+假如手机分辨率320 * 1000 ,  pc 端网页 640 * 1040px
+那么手机上显示 淘宝的做法是缩小一半
+例如我们的 m.taobao.com 
+body　比例是　640*960
+手机端配置显示是 如下 配置为了0.5
+<meta name="viewport" content="initial-scale=0.5, maximum-scale=0.5, minimum-scale=0.5, user-scalable=no">
+
 ```
