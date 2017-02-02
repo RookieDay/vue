@@ -2030,8 +2030,84 @@ DOM疑问：
 </html>
 
 - JavaScript 匿名函数
+函数作为表达式出现、或者作为其他表达式的一部分时才是函数表达式，此时函数可以是匿名或者有名的。 
 知乎的解释 https://www.zhihu.com/question/20249179
 匿名函数 https://my.oschina.net/u/2331760/blog/468672?p=%7B%7BcurrentPage+1%7D%7D
+http://blog.csdn.net/rishengcsdn/article/details/38680425
+http://www.cnblogs.com/wl0000-03/p/6050108.html
+```
+Immediately-invoked Function Expression（IIFE，立即调用函数），简单的理解就是定义完成函数之后立即执行。
+
+比较常见的三种写法：
+
+// Crockford's preference - parens on the inside
+(function() {
+  console.log('Welcome to the Internet. Please follow me.');
+}());
+
+(function() {
+  console.log('Welcome to the Internet. Please follow me.');
+})();
+
+!function() {
+  console.log('Welcome to the Internet. Please follow me.');
+}();
+
+```
+```
+ 闭包允许内层函数引用父函数中的变量，但是该变量是最终值
+
+示例六：
+
+/**
+ * <body>
+ * <ul>
+ *     <li>one</li>
+ *     <li>two</li>
+ *     <li>three</li>
+ *     <li>one</li>
+ * </ul>
+ */
+
+var lists = document.getElementsByTagName('li');
+for(var i = 0 , len = lists.length ; i < len ; i++){
+    lists[ i ].onmouseover = function(){
+        alert(i);    
+    };
+}
+你会发现当鼠标移过每一个<li&rt;元素时，总是弹出4，而不是我们期待的元素下标。这是为什么呢？注意事项里已经讲了（最终值）。显然这种解释过于简单，当mouseover事件调用监听函数时，首先在匿名函数（ function(){ alert(i); }）内部查找是否定义了 i，结果是没有定义；因此它会向上查找，查找结果是已经定义了，并且i的值是4（循环后的i值）；所以，最终每次弹出的都是4。
+
+解决方法一：
+
+var lists = document.getElementsByTagName('li');
+for(var i = 0 , len = lists.length ; i < len ; i++){
+    (function(index){
+        lists[ index ].onmouseover = function(){
+            alert(index);    
+        };                    
+    })(i);
+}
+解决方法二：
+
+var lists = document.getElementsByTagName('li');
+for(var i = 0, len = lists.length; i < len; i++){
+    lists[ i ].$$index = i;    //通过在Dom元素上绑定$$index属性记录下标
+    lists[ i ].onmouseover = function(){
+        alert(this.$$index);    
+    };
+}
+解决方法三：
+
+function eventListener(list, index){
+    list.onmouseover = function(){
+        alert(index);
+    };
+}
+var lists = document.getElementsByTagName('li');
+for(var i = 0 , len = lists.length ; i < len ; i++){
+    eventListener(lists[ i ] , i);
+}
+```
 - 匿名函数中undefined形参
 
 
