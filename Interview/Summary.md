@@ -2029,6 +2029,11 @@ DOM疑问：
 	</body>
 </html>
 
+- JavaScript 匿名函数
+知乎的解释 https://www.zhihu.com/question/20249179
+匿名函数 https://my.oschina.net/u/2331760/blog/468672?p=%7B%7BcurrentPage+1%7D%7D
+- 匿名函数中undefined形参
+
 
 
 
@@ -2037,7 +2042,9 @@ DOM疑问：
 // xxxx-xx-xx
 //这里使用window -- 减少变量作用域的搜索 提高性能, 
 //这里使用undefined  --- 下面没有传参 所以我们这个值就是undefined 这是为了解决早期浏览器有的
-//没有实现undefined 功能， 有的没有实现undefined功能， 如果没有实现undefined功能，在浏览器使用的时候，他会把undefined当做变量来用， 一旦把他当做变量来使用，就表明改变量未定义，报错，所以参数里面给一个undefined,但是不给他传参，所以表明这个变量就是undefined,他的值也就是undefined， 这里巧妙的用到了
+//没有实现undefined 功能， 有的没有实现undefined功能， 如果没有实现undefined功能，在浏览器使用的时候，
+他会把undefined当做变量来用， 一旦把他当做变量来使用，就表明改变量未定义，报错，
+所以参数里面给一个undefined,但是不给他传参，所以表明这个变量就是undefined,他的值也就是undefined， 这里巧妙的用到了
 值和名字是一样的情况，那么在代码里面使用undefined的话 就不会出现这种报错的情况
 (function ( window, undefined ) {
 	
