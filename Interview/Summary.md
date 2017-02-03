@@ -2109,8 +2109,7 @@ for(var i = 0 , len = lists.length ; i < len ; i++){
 }
 ```
 - 匿名函数中undefined形参
-
-
+http://www.111cn.net/wy/js-ajax/39218.htm
 
 
 简单封装一下：
