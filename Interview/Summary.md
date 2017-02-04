@@ -2109,8 +2109,16 @@ for(var i = 0 , len = lists.length ; i < len ; i++){
 }
 ```
 - 匿名函数中undefined形参
+完美解释
 http://www.111cn.net/wy/js-ajax/39218.htm
-
+(function() {
+// ...
+})();
+很简单，大家都在用。但是，我们需要了解更多。
+首先，闭包是一个匿名函数 (Anonymous function), 即是 (function() {}) 这部分。
+之所以要给 function 添加括弧是为了让它形成一个表达式 (expression), 有了表达式，
+并且确定它的类型是个函数 (Function 实例), 就可以直接调用它。所以，后面的一对括弧是可以工作的，
+它的意义是：我要调用 (call) 这个函数。
 
 简单封装一下：
 // by ana
