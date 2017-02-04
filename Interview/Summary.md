@@ -2120,6 +2120,31 @@ http://www.111cn.net/wy/js-ajax/39218.htm
 并且确定它的类型是个函数 (Function 实例), 就可以直接调用它。所以，后面的一对括弧是可以工作的，
 它的意义是：我要调用 (call) 这个函数。
 
+http://blog.csdn.net/fbysss/article/details/8173177
+;(function($,window,document,undefined){
+	//code
+})(JQuery,window,document);
+一般在很多jQuery插件中可以看到这类的代码。首先说说非常值得提倡的几点：
+	代码最前面的分号，可以防止多个文件压缩合并以为其他文件最后一行语句没加分号，而引起合并后的语法错误。
+	匿名函数(function(){})();：由于Javascript执行表达式是从圆括号里面到外面，所以可以用圆括号强制执行声明的函数。避免函数体内和外部的变量冲突。
+	$实参:$是jquery的简写，很多方法和类库也使用$,这里$接受jQuery对象，也是为了避免$变量冲突，保证插件可以正常运行。
+	window, document实参分别接受window, document对象，window, document对象都是全局环境下的，而在函数体内的window, document其实是局部变量，不是全局的window, document对象。这样做有个好处就是可以提高性能，减少作用域链的查询时间，如果你在函数体内需要多次调用window 或 document对象，这样把window 或 document对象当作参数传进去，这样做是非常有必要的。当然你如果你的插件用不到这两个对象，那么就不用传递这两个参数了。
+
+undefined 并不是js关键字，这样可以用作变量名
+function a(){
+	var undefined = "ana";
+	alert(undefined);
+}
+a();
+----弹出来的是5，而不是undefined。也就是说全局的undefined有可能被覆盖。
+在一些浏览器输出的undefined，比如高版本的firefox，chrome。看上去有点蛋痛，但这是真的，幸好，ECMAScript 5中undefined会变成只读属性，
+The value properties NaN, Infinity, and undefined of the Global Object have been changed to be read-only properties.
+这样就很好解释上面的匿名函数为什么要使用undefined这个形参了，因为这个匿名函数使用了$, window, document三个实参，
+undefined形参是没有任何值传入进来的，那么这里的undefined是真正的undefined，是window的undefined属性。这样写可以避免
+函数体内的undefined被外部重写。
+
+
+
 简单封装一下：
 // by ana
 // xxxx-xx-xx
