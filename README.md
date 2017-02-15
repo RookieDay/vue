@@ -450,6 +450,4 @@ new Vue({
 })
 这种封装也适用于其它可注册的 Vue 功能，如指令。
    ```
-
-
 组件 http://www.cnblogs.com/w-wanglei/p/5851629.html
