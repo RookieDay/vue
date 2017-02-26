@@ -482,4 +482,5 @@ this.$set(this.someObject,'b',2)
 // 代替 `Object.assign(this.someObject, { a: 1, b: 2 })`
 this.someObject = Object.assign({}, this.someObject, { a: 1, b: 2 })
 也有一些数组相关的问题，之前已经在列表渲染中讲过。
+
 ```
